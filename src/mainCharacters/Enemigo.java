@@ -1,18 +1,18 @@
-package proyectojuego;
+package mainCharacters;
 
 import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
-import static proyectojuego.CONSTANTES.RUTA_IMAGENES;
+import static mainCharacters.CONSTANTES.RUTA_IMAGENES;
 
 /**
  *
  * @author josie
  */
 public class Enemigo {
-    public ImageView enemigo;
+    private ImageView enemigo;
     private String nombre;
     private String ruta;
     

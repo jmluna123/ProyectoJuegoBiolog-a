@@ -17,12 +17,12 @@ import javafx.stage.Stage;
 public class ProyectoJuego extends Application {
     
     public static Scene escena;
-    PaneInicio pj;
+    public static MainPane pj;
     
     @Override
     public void start(Stage primaryStage) {
         escena = new Scene(new Pane());
-        pj = new PaneInicio();
+        pj = new MainPane();
         escena.setRoot(pj.getRoot());
         primaryStage.setScene(escena);
         

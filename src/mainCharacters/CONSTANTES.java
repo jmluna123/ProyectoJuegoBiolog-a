@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package proyectojuego;
+package mainCharacters;
 
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -15,7 +15,7 @@ import javafx.scene.text.FontWeight;
 public class CONSTANTES {
     public static final String RUTA_IMAGENES="/recursos/imagenes/";
     public static double DELTA_DESPLAZAMIENTO = 10;
-    public static int VIDA = 5;
+    public static int VIDA = 10;
     
     public final static double GAME_WIDTH=1100;
     public final static double GAME_HEIGHT=600;
@@ -26,4 +26,7 @@ public class CONSTANTES {
     
     public final static double ANIMAL_WIDTH= 90;
     public final static double ANIMAL_HEIGHT= 70;
+    
+    public final static double INIT_X = 0;
+    public final static double INIT_Y = 0;
 }
