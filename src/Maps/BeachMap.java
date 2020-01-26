@@ -15,7 +15,7 @@ import mainCharacters.Enemigo;
 public class BeachMap extends MapPane {
     
     public BeachMap(double x, double y) {
-        super(new Animal(),"imagen_fondo1.png");
+        super(new Animal("crab.gif"),"imagen_fondo1.png");
         animal.fijarPosicionObjeto(x, y);
         generarLimites();
         generarEnemigos();
@@ -31,8 +31,9 @@ public class BeachMap extends MapPane {
 
     @Override
     protected final void generarEnemigos() {
-        Enemigo e = new Enemigo("gaviota.png", 120, 350, 1000, false);
-        super.enemies.add(e.getObjeto());
+        Enemigo e = new Enemigo("gaviota.png", false, animal);
+        e.move(120, 350, 1000);
+        super.enemies.add(e);
     }
 
     @Override
@@ -49,6 +50,7 @@ public class BeachMap extends MapPane {
     boolean isChangeMapLeft(double x, double y) {
         if(x <= 0){
             super.changeMap(new MesolitoralMap(super.Xmax, y));
+            detenerHilos();
             return true;
         }
         return false;

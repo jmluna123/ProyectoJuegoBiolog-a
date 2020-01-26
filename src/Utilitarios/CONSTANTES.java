@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package mainCharacters;
+package Utilitarios;
 
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;

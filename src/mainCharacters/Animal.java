@@ -8,7 +8,7 @@ package mainCharacters;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import static mainCharacters.CONSTANTES.*;
+import static Utilitarios.CONSTANTES.*;
 
 /**
  *
@@ -18,21 +18,21 @@ public class Animal {
     public ImageView animal;
     private String nombre;
     private String ruta;
-    public static int vida = VIDA;
     
-    public Animal(){
+    public Animal(String ruta){
         //creamos a imageView del animal
         //agregar la imagen
         //creando la imagen, le pasamos el ancho, el alto, si queremos mantener el 
         //radio entre el ancho y el alto y que s
         Image img = new Image(getClass().getResourceAsStream(
-                        RUTA_IMAGENES+ ANIMAL_ROUTE),
+                        RUTA_IMAGENES+ ruta),
                                 ANIMAL_WIDTH,
                                 ANIMAL_HEIGHT,
                                 true,
                                 true);
         //agrega imagen al imageView
         animal = new ImageView(img);
+        this.ruta =ruta;
     }
     
     public void fijarPosicionObjeto(double x, double y){

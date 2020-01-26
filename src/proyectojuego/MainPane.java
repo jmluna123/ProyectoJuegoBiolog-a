@@ -1,7 +1,6 @@
 package proyectojuego;
 
 import Maps.BeachMap;
-import mainCharacters.Animal;
 import Maps.MapPane;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import static mainCharacters.CONSTANTES.*;
+import static Utilitarios.CONSTANTES.*;
 
 /**
  *
@@ -24,6 +23,7 @@ public class MainPane {
     private Label marcador;
     private int points;
     private HBox vida;
+    public static int vida_Animal = VIDA;
     
     public MainPane(){
         gamePane = new BeachMap(0,0);
@@ -60,13 +60,14 @@ public class MainPane {
     
     private List<ImageView> calculateHearts(){
         LinkedList<ImageView> hearts = new LinkedList<>();
-        int count = Animal.vida/2;
+        int count = vida_Animal/2;
         
         for(int i = 0; i < count; i++){
             hearts.add(obtainImage("heart_complete.png"));
         }
-        if(Animal.vida%2==1){
+        if(vida_Animal%2==1){
             hearts.add(obtainImage("heart_half.png"));
+            count++;
         }
         
         if(count < 0){
@@ -91,5 +92,9 @@ public class MainPane {
                                 35,
                                 true,
                                 true));
+    }
+    
+    public MapPane getMapPane(){
+        return gamePane;
     }
 }

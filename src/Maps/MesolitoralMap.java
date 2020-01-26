@@ -14,7 +14,7 @@ import mainCharacters.Animal;
 public class MesolitoralMap extends MapPane {
 
     public MesolitoralMap(double x, double y) {
-        super(new Animal(), "imagen_fondo2.jpg");
+        super(new Animal("crab.jpg"), "imagen_fondo2.jpg");
         animal.fijarPosicionObjeto(x, y);
         generarLimites();
         generarEnemigos();
@@ -22,12 +22,12 @@ public class MesolitoralMap extends MapPane {
     }
 
     @Override
-    void generarLimites() {
+    protected final void generarLimites() {
         //TODO
     }
 
     @Override
-    void generarEnemigos() {
+    protected final void generarEnemigos() {
         //TODO
     }
 
@@ -50,6 +50,7 @@ public class MesolitoralMap extends MapPane {
     boolean isChangeMapRight(double x, double y) {
         if( x >= super.Xmax){
             super.changeMap(new BeachMap(0, y));
+            detenerHilos();
             return true;
         }
         return false;

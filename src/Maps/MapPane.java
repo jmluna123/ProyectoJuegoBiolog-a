@@ -10,9 +10,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import mainCharacters.Animal;
-import mainCharacters.CONSTANTES;
+import Utilitarios.CONSTANTES;
 import proyectojuego.ProyectoJuego;
-import static mainCharacters.CONSTANTES.*;
+import static Utilitarios.CONSTANTES.*;
+import javafx.scene.image.ImageView;
+import mainCharacters.Enemigo;
 import proyectojuego.MainPane;
 
 /**
@@ -24,7 +26,9 @@ public abstract class MapPane {
     
     protected Rectangle pieza_colision;
     protected List<Shape> borders;
-    protected List<Node> enemies;
+    protected List<Enemigo> enemies;
+    protected List<ImageView> points;
+    protected List<ImageView> health;
     protected Animal animal;
     
     protected final double Xmax;
@@ -47,9 +51,11 @@ public abstract class MapPane {
         Ymax = CONSTANTES.GAME_HEIGHT - ANIMAL_HEIGHT;
     }
     
-    //abstract void initialStart();
     abstract void generarLimites();
     abstract void generarEnemigos();
+    //abstract void generarPuntos();
+    //abstract void generarVidas();
+    
     abstract boolean isChangeMapUp(double x, double y);
     abstract boolean isChangeMapDown(double x, double y);
     abstract boolean isChangeMapLeft(double x, double y);
@@ -73,8 +79,6 @@ public abstract class MapPane {
                             if(y1 < Ymax &&  y1 > 0){
                                 animal.fijarPosicionObjeto(animal.getPosicionX(), y1);
                             }
-                        }if(isEnemy()){
-                            System.out.println("Ouch!");
                         }
                         break;
                     case DOWN: 
@@ -94,7 +98,6 @@ public abstract class MapPane {
                             }
                             isChangeMapRight(x1, animal.getPosicionY());
                         }
-                        
                         break;
                     case LEFT:
                         if(!isCollision(3)){
@@ -107,15 +110,6 @@ public abstract class MapPane {
                 }
             }
         });
-    }
-    
-    private boolean isEnemy(){
-        for(Node n: enemies){
-            if(isCollision(n, animal.getObjeto())){
-                return true;
-            }
-        }
-        return false;
     }
     
     protected boolean isCollision(int type){
@@ -151,8 +145,16 @@ public abstract class MapPane {
     
     protected final void loadElementsPane(){
         gamePane.getChildren().addAll(borders);
-        gamePane.getChildren().addAll(enemies);
+        gamePane.getChildren().addAll(getNodesEnemies());
         gamePane.getChildren().addAll(animal.getObjeto());
+    }
+    
+    private List<Node> getNodesEnemies(){
+        LinkedList<Node> enemyNodes = new LinkedList<>();
+        for(Enemigo e: enemies){
+            enemyNodes.add(e.getObjeto());
+        }
+        return enemyNodes;
     }
     
     protected boolean changeMap(MapPane map){
@@ -165,22 +167,15 @@ public abstract class MapPane {
         Bounds b2 = n2.getBoundsInParent();
         return b1.intersects(b2);
     }
-    
-     /*
-    private boolean chequearColisiones(){
-        //chequeamos si hay una interseccion entre el astronauta y 
-        //y algunas de las piezas, si lo hay debemos remover la pieza de la escena
-        //y de la lista de piezas
-        //como queremos iterar y remover a la vez, usamos un iterator
-        Iterator<Shape> it = piezas.iterator();
-        while(it.hasNext()){
-            //obtenemos el siguiente elemento de la piezas
-            Shape p = it.next();
-            if(isCollision(p,animal.getObjeto())){
-                return true;
-            }
-        }
-        return false;
+
+    public List<Enemigo> getEnemies() {
+        return enemies;
     }
-    */
+
+    public void detenerHilos() {
+        for(Enemigo e: enemies){
+            System.out.println("[parar]");
+            e.getHilo().parar();
+        }
+    }
 }

@@ -41,6 +41,6 @@ public class ProyectoJuego extends Application {
     
     @Override
     public void stop(){
-        //pj.hiloTiempo.parar();
+        pj.getMapPane().detenerHilos();
     }
 }
