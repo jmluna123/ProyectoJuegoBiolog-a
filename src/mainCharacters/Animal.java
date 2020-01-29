@@ -15,7 +15,7 @@ import static Utilitarios.CONSTANTES.*;
  * @author Jocellyn Luna
  */
 public class Animal {
-    public ImageView animal;
+    private ImageView animal;
     private String nombre;
     private String ruta;
     
@@ -24,8 +24,7 @@ public class Animal {
         //agregar la imagen
         //creando la imagen, le pasamos el ancho, el alto, si queremos mantener el 
         //radio entre el ancho y el alto y que s
-        Image img = new Image(getClass().getResourceAsStream(
-                        RUTA_IMAGENES+ ruta),
+        Image img = new Image(getClass().getResourceAsStream(ruta),
                                 ANIMAL_WIDTH,
                                 ANIMAL_HEIGHT,
                                 true,

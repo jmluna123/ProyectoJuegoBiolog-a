@@ -2,7 +2,6 @@ package Maps;
 
 import java.util.LinkedList;
 import java.util.List;
-import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.input.KeyEvent;
@@ -13,8 +12,14 @@ import mainCharacters.Animal;
 import Utilitarios.CONSTANTES;
 import proyectojuego.ProyectoJuego;
 import static Utilitarios.CONSTANTES.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import mainCharacters.Casa;
 import mainCharacters.Enemigo;
+import popOut.Message;
+import popOut.PopOut;
+import popOut.PopMessage;
 import proyectojuego.MainPane;
 
 /**
@@ -22,44 +27,62 @@ import proyectojuego.MainPane;
  * @author Jocellyn Luna
  */
 public abstract class MapPane {
-    private final Pane gamePane;
+    protected final Pane gamePane;
     
-    protected Rectangle pieza_colision;
+    protected List<ImageView> health;
     protected List<Shape> borders;
     protected List<Enemigo> enemies;
-    protected List<ImageView> points;
-    protected List<ImageView> health;
+    protected final List<Casa> objetos;
     protected Animal animal;
+    
+    private boolean isComida;
+    private boolean isEnemigo;
     
     protected final double Xmax;
     protected final double Ymax;
     
-    public MapPane(Animal animal, String routeImage){
+    public MapPane(Animal animal, String routeImage){ 
+        objetos = new LinkedList<>();
         gamePane = new Pane();
-        gamePane.setStyle("-fx-background-image: url('"+CONSTANTES.RUTA_IMAGENES+ routeImage +"');"
+        Xmax = CONSTANTES.GAME_WIDTH - ANIMAL_WIDTH;
+        Ymax = CONSTANTES.GAME_HEIGHT - ANIMAL_HEIGHT;
+        gamePane.setStyle("-fx-background-image: url('"+ routeImage +"');"
                 + "-fx-background-repeat: stretch;"
                 + "-fx-background-size: "+CONSTANTES.GAME_WIDTH+" "+(CONSTANTES.GAME_HEIGHT)+"; "
                 + "-fx-background-position: center center;");
         gamePane.setPrefSize(CONSTANTES.GAME_WIDTH, CONSTANTES.GAME_HEIGHT);
         
-        pieza_colision = new Rectangle(animal.getPosicionX(), animal.getPosicionY(),90,70);
         borders = new LinkedList<>();
         enemies = new LinkedList<>();
+        health = new LinkedList<>();
         this.animal = animal;
         moveKeyEvent();
-        Xmax = CONSTANTES.GAME_WIDTH - ANIMAL_WIDTH;
-        Ymax = CONSTANTES.GAME_HEIGHT - ANIMAL_HEIGHT;
+        isComida = true;
+        isEnemigo = true;
+        generarLetrero();
+        generarLimites();
+        generarEnemigos();
+        generarVidas();
+        loadElementsPane();
+        isEvolve();
+        getInfo();
+        changeInfo();
     }
     
     abstract void generarLimites();
     abstract void generarEnemigos();
-    //abstract void generarPuntos();
-    //abstract void generarVidas();
+    abstract Message createMessageFood();
+    abstract Message createMessageEnemy();
+    abstract void generarVidas();
+    abstract void generarLetrero();
+    abstract boolean isObject();
+    abstract void isEvolve();
+    public abstract VBox buildInformation();
     
-    abstract boolean isChangeMapUp(double x, double y);
+    //abstract boolean isChangeMapUp(double x, double y);
     abstract boolean isChangeMapDown(double x, double y);
     abstract boolean isChangeMapLeft(double x, double y);
-    abstract boolean isChangeMapRight(double x, double y);
+    //abstract boolean isChangeMapRight(double x, double y);
     
     protected Shape generarBorde(double x, double y, double ancho , double largo){
         Rectangle r = new Rectangle(x,y, ancho, largo);
@@ -69,95 +92,83 @@ public abstract class MapPane {
     }
     
     private void moveKeyEvent(){
-        ProyectoJuego.escena.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override public void handle(KeyEvent event) {
-                switch (event.getCode()) {
-                    case UP:    
-                        if(!isCollision(0)){
-                            
-                            Double y1 = animal.getPosicionY() - CONSTANTES.DELTA_DESPLAZAMIENTO;
-                            if(y1 < Ymax &&  y1 > 0){
-                                animal.fijarPosicionObjeto(animal.getPosicionX(), y1);
-                            }
-                        }
-                        break;
-                    case DOWN: 
-                       if(!isCollision(1)){
-                            Double y2 = animal.getPosicionY() + CONSTANTES.DELTA_DESPLAZAMIENTO;
-                            if(y2 < Ymax && y2 >0){
-                                animal.fijarPosicionObjeto(animal.getPosicionX(), y2);
-                            }
-                        }
-                        break;
+        ProyectoJuego.escena.setOnKeyPressed((KeyEvent event) -> {
+            switch (event.getCode()) {
+                case UP:
+                     
+                    Double y1 = animal.getPosicionY() - CONSTANTES.DELTA_DESPLAZAMIENTO;
+                    if(y1 < Ymax &&  y1 > 0){
+                        animal.fijarPosicionObjeto(animal.getPosicionX(), y1);
+                        
+                    }
+                    colisionDetector(animal.getPosicionX(), y1 + DELTA_DESPLAZAMIENTO + 8);
+
+                    break;
+                case DOWN:
+                    Double y2 = animal.getPosicionY() + CONSTANTES.DELTA_DESPLAZAMIENTO;
+                    if(y2 < Ymax && y2 >0){
+                        animal.fijarPosicionObjeto(animal.getPosicionX(), y2);
+                    }
+                    colisionDetector(animal.getPosicionX(), y2 - DELTA_DESPLAZAMIENTO - 8);
+                    isChangeMapDown(animal.getPosicionX(), y2);
+                    break;
                     
-                    case RIGHT:  
-                        if(!isCollision(2)){
-                            Double x1 = animal.getPosicionX() + CONSTANTES.DELTA_DESPLAZAMIENTO;
-                            if(x1 < Xmax &&  x1 > 0){
-                            animal.fijarPosicionObjeto(x1, animal.getPosicionY());
-                            }
-                            isChangeMapRight(x1, animal.getPosicionY());
-                        }
-                        break;
-                    case LEFT:
-                        if(!isCollision(3)){
-                            Double x2 = animal.getPosicionX() - CONSTANTES.DELTA_DESPLAZAMIENTO;
-                            if(x2 < Xmax &&  x2 > 0){
-                                animal.fijarPosicionObjeto(x2, animal.getPosicionY());
-                            }
-                            isChangeMapLeft(x2, animal.getPosicionY());
-                        }
-                }
+                case RIGHT:
+                    Double x1 = animal.getPosicionX() + CONSTANTES.DELTA_DESPLAZAMIENTO;
+                    if(x1 < Xmax &&  x1 > 0){
+                        animal.fijarPosicionObjeto(x1, animal.getPosicionY());
+                    }
+                    colisionDetector(x1 - DELTA_DESPLAZAMIENTO - 8 , animal.getPosicionY());
+                    break;
+                case LEFT:
+                    Double x2 = animal.getPosicionX() - CONSTANTES.DELTA_DESPLAZAMIENTO;
+                    if(x2 < Xmax &&  x2 > 0){
+                        animal.fijarPosicionObjeto(x2, animal.getPosicionY());
+                    }
+                    colisionDetector(x2 + DELTA_DESPLAZAMIENTO + 8 , animal.getPosicionY());
+                    isChangeMapLeft(x2, animal.getPosicionY());
             }
         });
-    }
-    
-    protected boolean isCollision(int type){
-        switch(type){
-            case 0: //UP
-                pieza_colision.setLayoutX(animal.getPosicionX());
-                pieza_colision.setLayoutY(animal.getPosicionY()-10);
-                break;
-            case 1: //DOWN
-                pieza_colision.setLayoutX(animal.getPosicionX());
-                pieza_colision.setLayoutY(animal.getPosicionY()+10);
-                break;
-            case 2: //RIGHT
-                pieza_colision.setLayoutX(animal.getPosicionX()+10);
-                pieza_colision.setLayoutY(animal.getPosicionY());
-                break;
-            case 3: //LEFT
-                pieza_colision.setLayoutX(animal.getPosicionX()-10);
-                pieza_colision.setLayoutY(animal.getPosicionY());
-                break;
-        }
-        
-        for(Shape s: borders){
-            if(isCollision(s, pieza_colision))
-                return true;
-        }
-        return false;
     }
     
     public Pane getRoot() {
         return gamePane;
     }
     
+    private void colisionDetector(double x, double y){
+        if(isCollision(health)){
+            if(isComida){
+                isComida = false;
+                PopOut pop = new PopMessage(ProyectoJuego.stageMain, createMessageFood(), "Comida");
+            }
+        }if(isHurtingEnemy()){
+            proyectojuego.MainPane.vida_Animal--;
+            proyectojuego.ProyectoJuego.pj.generateHearts();
+            if(isEnemigo){
+                isEnemigo = false;
+                PopOut pop = new PopMessage(ProyectoJuego.stageMain, createMessageEnemy(), "Enemigos");
+            }
+            animal.fijarPosicionObjeto(x,y);
+        }
+        isObject();
+    }
+    
     protected final void loadElementsPane(){
         gamePane.getChildren().addAll(borders);
         gamePane.getChildren().addAll(getNodesEnemies());
         gamePane.getChildren().addAll(animal.getObjeto());
+        gamePane.getChildren().addAll(health);
     }
     
-    private List<Node> getNodesEnemies(){
-        LinkedList<Node> enemyNodes = new LinkedList<>();
+    private List<ImageView> getNodesEnemies(){
+        LinkedList<ImageView> enemyNodes = new LinkedList<>();
         for(Enemigo e: enemies){
             enemyNodes.add(e.getObjeto());
         }
         return enemyNodes;
     }
     
-    protected boolean changeMap(MapPane map){
+    public boolean changeMap(MapPane map){
         MainPane.root.setCenter(map.gamePane);
         return true;
     }
@@ -167,15 +178,54 @@ public abstract class MapPane {
         Bounds b2 = n2.getBoundsInParent();
         return b1.intersects(b2);
     }
+    
+    protected boolean isCollision(List<ImageView> im){
+        for(ImageView i :im){
+            if(isCollision(i, animal.getObjeto())){
+                if(proyectojuego.MainPane.vida_Animal < 10){
+                    im.remove(i);
+                    gamePane.getChildren().remove(i);
+                    proyectojuego.MainPane.vida_Animal++;
+                    proyectojuego.ProyectoJuego.pj.generateHearts();
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    protected boolean isHurtingEnemy(){
+        for(Enemigo e: enemies){
+            if(isCollision(e.getObjeto(), animal.getObjeto())){
+                MainPane.setEnemigoKIll(e);
+                return true;
+            }
+        }
+        return false;
+    }
 
     public List<Enemigo> getEnemies() {
         return enemies;
     }
-
-    public void detenerHilos() {
-        for(Enemigo e: enemies){
-            System.out.println("[parar]");
-            e.getHilo().parar();
-        }
+    
+    public void getInfo(){
+        gamePane.setOnMouseClicked(event ->{
+            System.out.println("X: "+ event.getX() + "Y:" + event.getY());
+        });
+    }
+    
+     protected ImageView generarImagen(double x, double y, String ruta){
+        ImageView i = new ImageView(new Image(getClass().getResourceAsStream(ruta),
+                                100,
+                                100,
+                                true,
+                                true));
+        i.setLayoutX(x);
+        i.setLayoutY(y);
+        return i;
+    }
+     
+    private void changeInfo(){
+        MainPane.root.setBottom(buildInformation());
     }
 }

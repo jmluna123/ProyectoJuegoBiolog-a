@@ -1,10 +1,11 @@
 package proyectojuego;
 
-import Maps.BeachMap;
+import Maps.BatiPelagicoMap;
+import popOut.PopOut;
+import Maps.SupraLitoralMap;
 import Maps.MapPane;
 import java.util.LinkedList;
 import java.util.List;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -12,6 +13,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import static Utilitarios.CONSTANTES.*;
+import javafx.scene.layout.GridPane;
+import mainCharacters.Enemigo;
+import popOut.PopKill;
 
 /**
  *
@@ -20,37 +24,25 @@ import static Utilitarios.CONSTANTES.*;
 public class MainPane { 
     private MapPane gamePane;   
     public static final BorderPane root = new BorderPane();
-    private Label marcador;
-    private int points;
     private HBox vida;
     public static int vida_Animal = VIDA;
+    private boolean isEnd;
+    private static Enemigo enemigoKIll; 
     
     public MainPane(){
-        gamePane = new BeachMap(0,0);
+        isEnd = true;
+        gamePane = new SupraLitoralMap(900, 29);
         vida = new HBox();
-        marcador = new Label(String.valueOf(points));
-        
         root.setTop(createTop());
         root.setCenter(gamePane.getRoot());
-        //TODO: se debe crear un botton para las instrucciones del juego, y una imagen del animal con el que se juega
-        //ROOT.setBottom(buildControllers());
+        root.setBottom(gamePane.buildInformation());
     }
     
     private AnchorPane createTop(){
         generateHearts();
         AnchorPane top = new AnchorPane();
-        
-        Label lm = new Label("Marcador");
-        lm.setFont(FONT);
-        
-        marcador.setFont(FONT);
-        
-        top.getChildren().addAll(vida,lm,marcador);
-        
+        top.getChildren().addAll(vida);
         AnchorPane.setLeftAnchor(vida, 10.0);
-        AnchorPane.setRightAnchor(lm, 50.0);
-        AnchorPane.setRightAnchor(marcador, 10.0);
-                
         return top;
     }
     
@@ -60,20 +52,15 @@ public class MainPane {
     
     private List<ImageView> calculateHearts(){
         LinkedList<ImageView> hearts = new LinkedList<>();
-        int count = vida_Animal/2;
-        
+        int count = vida_Animal;
         for(int i = 0; i < count; i++){
             hearts.add(obtainImage("heart_complete.png"));
         }
-        if(vida_Animal%2==1){
-            hearts.add(obtainImage("heart_half.png"));
-            count++;
-        }
-        
         if(count < 0){
             count = 0;
         }
-        for(int i = 0; i < VIDA/2 - count; i++){
+        System.out.println(count);
+        for(int i = 0; i < VIDA - count; i++){
                 hearts.add(obtainImage("heart_empty.png"));
             }
         
@@ -83,6 +70,10 @@ public class MainPane {
     public void generateHearts(){
         vida.getChildren().clear();
         vida.getChildren().addAll(calculateHearts());
+        if(vida_Animal <= 0 && isEnd){
+            isEnd = false;
+            PopOut pop = new PopKill(proyectojuego.ProyectoJuego.stageMain, enemigoKIll.getMensaje(), "Game Over");
+        }
     }
     
     private ImageView obtainImage(String route){
@@ -96,5 +87,19 @@ public class MainPane {
     
     public MapPane getMapPane(){
         return gamePane;
+    }
+
+    public static void setEnemigoKIll(Enemigo enemigoKIll) {
+        MainPane.enemigoKIll = enemigoKIll;
+    }
+    
+    public void restart(){
+        isEnd = true;
+        vida_Animal = VIDA;
+        generateHearts();
+        gamePane.changeMap(new SupraLitoralMap(1000,50));  
+        ANIMAL_WIDTH= 70;
+        ANIMAL_HEIGHT= 50;
+        DELTA_DESPLAZAMIENTO = 15;
     }
 }

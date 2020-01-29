@@ -18,15 +18,15 @@ public class ProyectoJuego extends Application {
     
     public static Scene escena;
     public static MainPane pj;
+    public static Stage stageMain;
     
     @Override
     public void start(Stage primaryStage) {
         escena = new Scene(new Pane());
+        stageMain = primaryStage;
         pj = new MainPane();
         escena.setRoot(pj.getRoot());
         primaryStage.setScene(escena);
-        
-        
         primaryStage.setTitle("ExploraBIO");
         //mostramos la pantalla
         primaryStage.show();
@@ -37,10 +37,5 @@ public class ProyectoJuego extends Application {
      */
     public static void main(String[] args) {
         launch(args);
-    }
-    
-    @Override
-    public void stop(){
-        pj.getMapPane().detenerHilos();
     }
 }
